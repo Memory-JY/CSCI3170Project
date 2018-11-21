@@ -132,35 +132,35 @@ class PassengerInstance {
 							System.out.println("[ERROR] Invalid input.");
 						}
 					} while (!valid);
-					String query = "UPDATE Trip SET rating = ? WHERE pid = ? AND tid = ?";
-					try (PreparedStatement prep = c.prepareStatement(query)){
+					try (PreparedStatement prep = c.prepareStatement("UPDATE Trip SET rating = ? WHERE pid = ? AND tid = ?")){
 						prep.setInt(1,rating);
 						prep.setInt(2,pid);
 						prep.setInt(3,tripId);
 						int numOfChanges = prep.executeUpdate();
 						if(numOfChanges==0){
-							System.out.println("[Error] No trip found.");
+							System.out.println("[Error] Trip not found.");
 							break;
-						} else{
-							System.out.println("Trip ID, Driver Name, Vehicle ID, Vehicle Model, Start, End, Fee, Rating");
-							String newquery = "SELECT T.tid, D.name, V.vid, V.model, T.start, T.end, T.fee, T.rating FROM Trip T, Driver D, Vehicle V WHERE (T.pid = ? AND T.did = D.did AND V.vid = D.vid AND T.tid = ?)";
-
-							PreparedStatement prep2 = c.prepareStatement(newquery);
-							prep2.setInt(1, pid);
-							prep2.setInt(2, tripId);
-							ResultSet result = prep2.executeQuery();
-							while (result.next()){
-								System.out.print(result.getInt(1) + ", ");
-								System.out.print(result.getString(2) + ", ");
-								System.out.print(result.getString(3) + ", ");
-								System.out.print(result.getString(4) + ", ");
-								System.out.print(prettifyNull(dropLastNullable(result.getTimestamp(5).toString(),2)) + ", ");
-								System.out.print(prettifyNull(dropLastNullable(result.getTimestamp(6).toString(),2)) + ", ");
-								System.out.print(result.getInt(7) + ", ");
-								System.out.println(Utilities.prettifyRating(result.getInt(8)));
-							}
 						}
-						
+					} catch (SQLException ex){
+						System.out.println(ex.getMessage()+"\n");
+					}
+					try (PreparedStatement prep = c.prepareStatement("SELECT T.tid, D.name, V.vid, V.model, T.start, T.end, T.fee, T.rating FROM Trip T, Driver D, Vehicle V WHERE (T.pid = ? AND T.did = D.did AND V.vid = D.vid AND T.tid = ?)"))
+					{
+										
+						prep.setInt(1, pid);
+						prep.setInt(2, tripId);
+						ResultSet result = prep.executeQuery();
+						System.out.println("Trip ID, Driver Name, Vehicle ID, Vehicle Model, Start, End, Fee, Rating");	
+						while (result.next()){
+							System.out.print(result.getInt(1) + ", ");
+							System.out.print(result.getString(2) + ", ");
+							System.out.print(result.getString(3) + ", ");
+							System.out.print(result.getString(4) + ", ");
+							System.out.print(prettifyNull(dropLastNullable(result.getTimestamp(5).toString(),2)) + ", ");
+							System.out.print(prettifyNull(dropLastNullable(result.getTimestamp(6).toString(),2)) + ", ");
+							System.out.print(result.getInt(7) + ", ");
+							System.out.println(Utilities.prettifyRating(result.getInt(8)));
+						}
 					}
 					catch (SQLException ex){
 						System.out.println(ex.getMessage()+"\n");
