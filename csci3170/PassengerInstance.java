@@ -144,25 +144,20 @@ class PassengerInstance {
 						} else{
 							System.out.println("Trip ID, Driver Name, Vehicle ID, Vehicle Model, Start, End, Fee, Rating");
 							String newquery = "SELECT T.tid, D.name, V.vid, V.model, T.start, T.end, T.fee, T.rating FROM Trip T, Driver D, Vehicle V WHERE (T.pid = ? AND T.did = D.did AND V.vid = D.vid AND T.tid = ?)";
-							try {
-								PreparedStatement prep2 = c.prepareStatement(newquery);
-								prep2.setInt(1, pid);
-								prep2.setInt(2, tripId);
-								ResultSet result = prep2.executeQuery();
-								while (result.next()){
-									System.out.print(result.getInt(1) + ", ");
-									System.out.print(result.getString(2) + ", ");
-									System.out.print(result.getString(3) + ", ");
-									System.out.print(result.getString(4) + ", ");
-									System.out.print(dropLast(result.getTimestamp(5).toString(),2) + ", ");
-									System.out.print(dropLast(result.getTimestamp(6).toString(),2) + ", ");
-									System.out.print(result.getInt(7) + ", ");
-									System.out.println(result.getInt(8));
-								}
-								
-							}
-							catch (SQLException ex){
-								System.out.println(ex.getMessage()+"\n");
+
+							PreparedStatement prep2 = c.prepareStatement(newquery);
+							prep2.setInt(1, pid);
+							prep2.setInt(2, tripId);
+							ResultSet result = prep2.executeQuery();
+							while (result.next()){
+								System.out.print(result.getInt(1) + ", ");
+								System.out.print(result.getString(2) + ", ");
+								System.out.print(result.getString(3) + ", ");
+								System.out.print(result.getString(4) + ", ");
+								System.out.print(prettifyNull(dropLastNullable(result.getTimestamp(5).toString(),2)) + ", ");
+								System.out.print(prettifyNull(dropLastNullable(result.getTimestamp(6).toString(),2)) + ", ");
+								System.out.print(result.getInt(7) + ", ");
+								System.out.println(Utilities.prettifyRating(result.getInt(8)));
 							}
 						}
 						
